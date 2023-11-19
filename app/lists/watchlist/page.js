@@ -6,6 +6,7 @@ import { AiFillEye, AiOutlineClose } from "react-icons/ai";
 import { MovieContext } from "@/context/MovieContext";
 import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Watchlist() {
   const router = useRouter();
@@ -56,17 +57,18 @@ export default function Watchlist() {
         <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-10">
           {watchlist.map((movie) => (
             <div
-              onClick={() => router.push(`/movies/${movie.id}`)}
               key={movie.id}
               className="col-span-1 aspect-[2/3] relative group cursor-pointer"
             >
-              <Image
-                src={`https://image.tmdb.org/t/p/w342/${movie.poster_path}`}
-                alt={movie.title}
-                fill
-                loading="eager"
-                className="rounded-xl movie-img"
-              />
+              <Link href={`/movies/${movie.id}`}>
+                <Image
+                  src={`https://image.tmdb.org/t/p/w342/${movie.poster_path}`}
+                  alt={movie.title}
+                  fill
+                  loading="eager"
+                  className="rounded-xl movie-img"
+                />
+              </Link>
               <div className="overlay flex p-4 flex-col absolute bottom-0 rounded-bl-xl rounded-br-xl opacity-0 w-full h-1/4 bg-[#000000c0] items-center justify-center group-hover:opacity-100 duration-200">
                 <div className="w-10 h-10 rounded-full bg-[#3dd2cc] flex items-center justify-center">
                   <AiOutlineClose
