@@ -1,27 +1,14 @@
 "use client";
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import logo2 from "../public/logo2.png";
 import Image from "next/image";
 import { BiHome, BiMoviePlay, BiTrendingUp } from "react-icons/bi";
 import { HiQueueList } from "react-icons/hi2";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MovieContext } from "@/context/MovieContext";
-import { useUser } from "@clerk/nextjs";
 
 export default function SideBar() {
-  const { user } = useUser();
-  const { initFavorites, clearStates, initWatchlist } =
-    useContext(MovieContext);
   const currentUrl = usePathname();
-
-  useEffect(() => {
-    if (user) {
-      clearStates();
-      initFavorites(user.id);
-      initWatchlist(user.id);
-    }
-  }, [user]);
 
   return (
     <div
@@ -79,29 +66,6 @@ export default function SideBar() {
                 className="font-semibold text-lg"
               >
                 Movies
-              </h6>
-            </li>
-          </Link>
-          <Link href={"/trending"}>
-            <li
-              style={{
-                backgroundColor: currentUrl.includes("/trending")
-                  ? "#3dd2cc"
-                  : "transparent",
-              }}
-              className="flex items-center gap-3 p-4"
-            >
-              <BiTrendingUp
-                size={26}
-                color={currentUrl.includes("/trending") ? "white" : "#666666"}
-              />
-              <h6
-                style={{
-                  color: currentUrl.includes("/trending") ? "white" : "#666666",
-                }}
-                className="font-semibold text-lg"
-              >
-                Trending
               </h6>
             </li>
           </Link>

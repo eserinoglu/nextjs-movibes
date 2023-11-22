@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "react-toastify";
 
@@ -92,7 +92,9 @@ const MovieContextProvider = (props) => {
     try {
       const response = await fetch("/api/getWatchlist?clerk_id=" + clerk_id);
       if (!response.ok) {
-        throw new Error("Failed to fetch watchlist. Status: " + response.status);
+        throw new Error(
+          "Failed to fetch watchlist. Status: " + response.status
+        );
       }
       const results = await response.json();
       setWatchlist(results.watchlist);
@@ -110,6 +112,14 @@ const MovieContextProvider = (props) => {
     setFavorites([]);
     setWatchlist([]);
   };
+
+  useEffect(() => {
+    if (user) {
+      initFavorites();
+      initWatchlist();
+    }
+  }, [user]);
+
   return (
     <MovieContext.Provider
       value={{
