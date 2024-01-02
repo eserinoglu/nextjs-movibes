@@ -11,15 +11,13 @@ import {
 import { LuListPlus } from "react-icons/lu";
 import { BiTimeFive, BiSolidStar } from "react-icons/bi";
 import { MovieContext } from "@/context/MovieContext";
-import { useUser } from "@clerk/nextjs";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function MovieBanner({ data }) {
-  const { user } = useUser();
   const {
-    addFavorite,
-    removeFavorite,
+    addFavorites,
+    removeFavorites,
     favorites,
     watchlist,
     removeWatchlist,
@@ -29,12 +27,8 @@ export default function MovieBanner({ data }) {
   const [isInWatchlist, setIsInWatchlist] = React.useState(false);
 
   useEffect(() => {
-    setIsLiked(
-      favorites.length > 0 && favorites.find((fav) => fav.id === data.id)
-    );
-    setIsInWatchlist(
-      watchlist.length > 0 && watchlist.find((watch) => watch.id === data.id)
-    );
+    setIsLiked(favorites?.some((fav) => fav.movie_id === data.id));
+    setIsInWatchlist(watchlist?.some((watch) => watch.movie_id === data.id));
   }, [favorites, watchlist]);
   return (
     <div className="w-full h-auto relative flex rounded-xl overflow-hidden items-center px-4 py-5 md:p-7 md:py-12 shadow-lg bg-black">
@@ -73,19 +67,22 @@ export default function MovieBanner({ data }) {
         </div>
         <div className="flex flex-col gap-3 md:gap-6">
           <div className="flex flex-col gap-1">
-            <h4 className="opacity-50 text-sm md:text-base">{data.release_date.split("-")[0]}</h4>
+            <h4 className="opacity-50 text-sm md:text-base">
+              {data.release_date.split("-")[0]}
+            </h4>
             <h4 className="text-2xl md:text-4xl font-semibold">{data.title}</h4>
           </div>
           <div className="flex items-center gap-5">
             {isLiked ? (
               <AiFillHeart
-                onClick={() => removeFavorite(data)}
+                onClick={() => removeFavorites(data.id)}
                 color="red"
+                className="cursor-pointer"
                 size={26}
               />
             ) : (
               <AiOutlineHeart
-                onClick={() => addFavorite(data)}
+                onClick={() => addFavorites(data.id, data.poster_path)}
                 className="opacity-30 hover:opacity-100 cursor-pointer duration-100"
                 color="white"
                 size={26}
@@ -93,13 +90,14 @@ export default function MovieBanner({ data }) {
             )}
             {isInWatchlist ? (
               <AiFillEye
-                onClick={() => removeWatchlist(data)}
+                className="cursor-pointer"
+                onClick={() => removeWatchlist(data.id)}
                 color="#3dd2cc"
                 size={30}
               />
             ) : (
               <AiOutlineEye
-                onClick={() => addWatchlist(data)}
+                onClick={() => addWatchlist(data.id, data.poster_path)}
                 className="opacity-30 hover:opacity-100 cursor-pointer duration-100"
                 color="white"
                 size={30}

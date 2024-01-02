@@ -1,122 +1,126 @@
 "use client";
 import React, { createContext, useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
-import { toast } from "react-toastify";
+import { useUser } from "./UserContext";
+import { supabase } from "@/supabase/supabase";
+import { useRouter } from "next/navigation";
 
 export const MovieContext = createContext();
 
 const MovieContextProvider = (props) => {
+  const router = useRouter();
   const { user } = useUser();
-  const clerk_id = user ? user.id : null;
-  const notify = (message) => toast(message);
+  const [favorites, setFavorites] = useState(null);
+  const [watchlist, setWatchlist] = useState(null);
 
-  const [favorites, setFavorites] = useState([]);
-  const [watchlist, setWatchlist] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const addFavorite = async (movie) => {
-    if (!clerk_id) return notify("Please sign in to add favorites");
+  const fetchFavorites = async () => {
     try {
-      setFavorites([...favorites, movie]);
-      await fetch("/api/addFavorites", {
-        method: "POST",
-        body: JSON.stringify({ clerk_id, movie }),
-      }).then(() => notify("Added to favorites"));
-    } catch (err) {
-      alert(err);
-    }
-  };
-
-  const removeFavorite = async (movie) => {
-    if (!clerk_id) return notify("Please sign in to remove favorites");
-    try {
-      setFavorites(favorites.filter((fav) => fav.id !== movie.id));
-      await fetch("/api/removeFavorites", {
-        method: "POST",
-        body: JSON.stringify({ clerk_id, movie }),
-      }).then(() => notify("Removed from favorites"));
-    } catch (err) {
-      alert(err);
-    }
-  };
-
-  const initFavorites = async () => {
-    if (!clerk_id) return null;
-    try {
-      const response = await fetch("/api/getFavorites?clerk_id=" + clerk_id);
-      if (!response.ok) {
-        throw new Error(
-          "Failed to fetch favorites. Status: " + response.status
-        );
-      }
-      const results = await response.json();
-      setFavorites(results.favorites);
+      const { data, error } = await supabase
+        .from("user_favorites")
+        .select("*")
+        .eq("user_id", user.id);
+      if (error) throw error;
+      setFavorites(data);
       setIsLoading(false);
-    } catch (err) {
-      setFavorites([]);
-      setIsLoading(false);
-      console.error("Error fetching favorites:", err);
-      // Handle the error gracefully, alerting or displaying a message to the user
-      alert("Failed to fetch favorites. Please try again.");
+    } catch (error) {
+      console.log(error);
     }
   };
-
-  const addWatchlist = async (movie) => {
-    if (!clerk_id) return notify("Please sign in to add watchlist");
+  const fetchWatchlist = async () => {
     try {
-      setWatchlist([...watchlist, movie]);
-      await fetch("/api/addWatchlist", {
-        method: "POST",
-        body: JSON.stringify({ clerk_id, movie }),
-      }).then(() => notify("Added to watchlist"));
-    } catch (err) {
-      alert(err);
+      const { data, error } = await supabase
+        .from("user_watchlist")
+        .select("*")
+        .eq("user_id", user.id);
+      if (error) throw error;
+      setWatchlist(data);
+    } catch (error) {
+      console.log(error);
     }
   };
-
-  const removeWatchlist = async (movie) => {
-    if (!clerk_id) return notify("Please sign in to remove watchlist");
+  const addFavorites = async (movieId, posterPath) => {
+    if (!user) router.push(`/sign-in?redirect=/movies/${movieId}`);
     try {
-      setWatchlist(watchlist.filter((watchlist) => watchlist.id !== movie.id));
-      await fetch("/api/removeWatchlist", {
-        method: "POST",
-        body: JSON.stringify({ clerk_id, movie }),
-      }).then(() => notify("Removed from watchlist"));
-    } catch (err) {
-      console.log(err);
+      const movie = {
+        movie_id: movieId,
+        poster_path: posterPath,
+        user_id: user.id,
+      };
+      setFavorites((prev) => [...prev, movie]);
+      const { data, error } = await supabase
+        .from("user_favorites")
+        .insert([
+          {
+            user_id: user.id,
+            movie_id: movieId,
+            poster_path: posterPath,
+          },
+        ])
+        .select();
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
     }
   };
-
-  const initWatchlist = async () => {
-    if (!clerk_id) return null;
+  const removeFavorites = async (movieId) => {
     try {
-      const response = await fetch("/api/getWatchlist?clerk_id=" + clerk_id);
-      if (!response.ok) {
-        throw new Error(
-          "Failed to fetch watchlist. Status: " + response.status
-        );
-      }
-      const results = await response.json();
-      setWatchlist(results.watchlist);
-      setIsLoading(false);
-    } catch (err) {
-      setWatchlist([]);
-      setIsLoading(false);
-      console.error("Error fetching watchlist:", err);
-      // Handle the error gracefully, alerting or displaying a message to the user
-      alert("Failed to fetch watchlist. Please try again.");
+      setFavorites((prev) => prev.filter((fav) => fav.movie_id !== movieId));
+      const { data, error } = await supabase
+        .from("user_favorites")
+        .delete()
+        .eq("movie_id", movieId)
+        .eq("user_id", user.id);
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
     }
   };
-
-  const clearStates = () => {
-    setFavorites([]);
-    setWatchlist([]);
+  const addWatchlist = async (movieId, posterPath) => {
+    if (!user) router.push(`/sign-in?redirect=/movies/${movieId}`);
+    try {
+      const movie = {
+        movie_id: movieId,
+        poster_path: posterPath,
+        user_id: user.id,
+      };
+      setWatchlist((prev) => [...prev, movie]);
+      const { data, error } = await supabase
+        .from("user_watchlist")
+        .insert([
+          {
+            user_id: user.id,
+            movie_id: movieId,
+            poster_path: posterPath,
+          },
+        ])
+        .select();
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const removeWatchlist = async (movieId) => {
+    try {
+      setWatchlist((prev) =>
+        prev.filter((watch) => watch.movie_id !== movieId)
+      );
+      const { data, error } = await supabase
+        .from("user_watchlist")
+        .delete()
+        .eq("movie_id", movieId)
+        .eq("user_id", user.id);
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
     if (user) {
-      initFavorites();
-      initWatchlist();
+      fetchFavorites();
+      fetchWatchlist();
+    } else {
+      setFavorites(null);
+      setWatchlist(null);
     }
   }, [user]);
 
@@ -124,15 +128,11 @@ const MovieContextProvider = (props) => {
     <MovieContext.Provider
       value={{
         favorites,
-        addFavorite,
-        removeFavorite,
-        initFavorites,
-        clearStates,
+        watchlist,
+        addFavorites,
+        removeFavorites,
         addWatchlist,
         removeWatchlist,
-        initWatchlist,
-        isLoading,
-        watchlist,
       }}
     >
       {props.children}

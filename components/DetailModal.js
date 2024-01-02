@@ -81,8 +81,8 @@ export default function DetailModal({
 
 function MovieBanner2({ data }) {
   const {
-    addFavorite,
-    removeFavorite,
+    addFavorites,
+    removeFavorites,
     favorites,
     watchlist,
     addWatchlist,
@@ -91,13 +91,11 @@ function MovieBanner2({ data }) {
   const [isLiked, setIsLiked] = React.useState(false);
   const [isInWatchlist, setIsInWatchlist] = React.useState(false);
 
+  console.log(data);
+
   useEffect(() => {
-    setIsLiked(
-      favorites.length > 0 && favorites.find((fav) => fav.id === data.id)
-    );
-    setIsInWatchlist(
-      watchlist.length > 0 && watchlist.find((watch) => watch.id === data.id)
-    );
+    setIsLiked(favorites?.some((fav) => fav.movie_id === data.id));
+    setIsInWatchlist(watchlist?.some((watch) => watch.movie_id === data.id));
   }, [favorites, watchlist]);
 
   return (
@@ -122,13 +120,14 @@ function MovieBanner2({ data }) {
           <div className="flex items-center gap-5">
             {isLiked ? (
               <AiFillHeart
-                onClick={() => removeFavorite(data)}
+                onClick={() => removeFavorites(data.id)}
                 color="red"
+                className="cursor-pointer"
                 size={26}
               />
             ) : (
               <AiOutlineHeart
-                onClick={() => addFavorite(data)}
+                onClick={() => addFavorites(data.id, data.poster_path)}
                 className="opacity-30 hover:opacity-100 cursor-pointer duration-100"
                 color="white"
                 size={26}
@@ -136,13 +135,14 @@ function MovieBanner2({ data }) {
             )}
             {isInWatchlist ? (
               <AiFillEye
-                onClick={() => removeWatchlist(data)}
+                onClick={() => removeWatchlist(data.id)}
                 color="#3dd2cc"
+                className="cursor-pointer"
                 size={30}
               />
             ) : (
               <AiOutlineEye
-                onClick={() => addWatchlist(data)}
+                onClick={() => addWatchlist(data.id, data.poster_path)}
                 className="opacity-30 hover:opacity-100 cursor-pointer duration-100"
                 color="white"
                 size={30}

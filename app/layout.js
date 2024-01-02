@@ -1,9 +1,9 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import SideBar from "@/components/SideBar";
 import Header from "@/components/Header";
 import MovieContextProvider from "@/context/MovieContext";
+import UserContextProvider from "@/context/UserContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,7 +14,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
+    <UserContextProvider>
       <MovieContextProvider>
         <html lang="en">
           <body className={inter.className}>
@@ -24,6 +24,6 @@ export default function RootLayout({ children }) {
           </body>
         </html>
       </MovieContextProvider>
-    </ClerkProvider>
+    </UserContextProvider>
   );
 }

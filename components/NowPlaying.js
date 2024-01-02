@@ -24,7 +24,7 @@ export default async function NowPlaying() {
   return (
     <div className="w-full gap-5">
       <Link href={`/movies/${data.id}`}>
-        <div className="w-full aspect-[4/4.5] md:aspect-[16/6] relative bg-black rounded-xl p-4 md:p-7 flex items-end border-[1px] border-[#ffffff2d] md:hover:scale-[1.03] duration-150">
+        <div className="w-full aspect-[4/5] md:aspect-[16/6] relative bg-black rounded-xl p-4 md:p-7 flex items-end md:hover:scale-[1.03] duration-150 overflow-hidden border border-white/20">
           <div
             style={{
               transitionDuration: "0.3s",
@@ -32,7 +32,7 @@ export default async function NowPlaying() {
               background:
                 "linear-gradient(0deg, rgba(25,25,25,1) 1%, rgba(255,255,255,0) 99%)",
             }}
-            className="w-full h-full absolute right-0 top-0 pointer-events-none z-10 rounded-xl"
+            className="w-full h-full absolute right-0 top-0 pointer-events-none z-10"
           ></div>
           <div className="absolute top-0 right-0 w-full h-full rounded-xl object-cover">
             <Image
@@ -40,14 +40,13 @@ export default async function NowPlaying() {
               fill
               loading="eager"
               sizes="100%"
-              className="rounded-xl object-cover"
+              className="object-cover"
               src={`https://image.tmdb.org/t/p/original${data.backdrop_path}`}
               alt=""
             />
           </div>
-
           <div className="flex flex-col w-full gap-3">
-            <h4 className="font-bold text-3xl md:text-4xl md:font-semibold z-20 w-3/4">
+            <h4 className="font-bold text-2xl md:text-4xl md:font-semibold z-20 w-5/6">
               {data.title}
             </h4>
             <div className="flex items-center gap-2 z-10 opacity-70">

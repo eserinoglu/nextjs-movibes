@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { AiOutlineMenu } from "react-icons/ai";
 import { useRouter, usePathname } from "next/navigation";
-import { UserButton, useUser, SignOutButton } from "@clerk/nextjs";
 import Link from "next/link";
 import logo from "../public/logo2.png";
 import Image from "next/image";
+import { useUser } from "@/context/UserContext";
+import { supabase } from "@/supabase/supabase";
 
 export default function Header() {
-  const { isSignedIn, user } = useUser();
+  const { user } = useUser();
   const router = useRouter();
   const currentUrl = usePathname();
   const [searchValue, setSearchValue] = useState("");
@@ -54,6 +55,7 @@ export default function Header() {
           <FiSearch color="#666666" size={26} />
           <form
             className="w-full"
+            action="/search"
             onSubmit={(e) => {
               e.preventDefault();
               if (!searchValue) return;
@@ -63,7 +65,6 @@ export default function Header() {
           >
             <input
               value={searchValue}
-              required
               onChange={(e) => setSearchValue(e.target.value)}
               type="search"
               placeholder="Search for Movies"
@@ -72,15 +73,11 @@ export default function Header() {
           </form>
         </div>
         <div className="hidden md:flex md:col-span-1 items-center justify-end gap-7">
-          <div className="items-center gap-3 hidden md:flex">
-            {isSignedIn ? (
-              <UserButton
-                appearance={{ elements: { userButtonAvatarBox: "w-12 h-12" } }}
-              />
-            ) : (
-              <Link href={"/sign-in"}>Sign In</Link>
-            )}
-          </div>
+          {user ? (
+            <Link href={"/profile"}>Profile</Link>
+          ) : (
+            <Link href={"/sign-in"}>Sign In</Link>
+          )}
         </div>
       </div>
     </div>
@@ -88,6 +85,15 @@ export default function Header() {
 }
 
 function SideModal({ showSideModal, setShowSideModal, user, currentUrl }) {
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      window.location.href = "/";
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="z-40">
       <div
@@ -113,19 +119,7 @@ function SideModal({ showSideModal, setShowSideModal, user, currentUrl }) {
         <div className="bg-[#212121] rounded-xl shadow-lg flex items-center gap-2 p-4 w-[90%] mx-auto">
           {user ? (
             <div className="flex items-center gap-2 justify-center w-full">
-              <div className="w-10 h-10 rounded-full relative">
-                <Image
-                  fill
-                  sizes="100%"
-                  className="rounded-full"
-                  loading="eager"
-                  alt="user_profile"
-                  src={user.imageUrl}
-                />
-              </div>
-              <h5 className="font-semibold text-sm">
-                {user.firstName} {user.lastName}
-              </h5>
+              <button onClick={signOut}>Sign Out</button>
             </div>
           ) : (
             <div className="w-full flex justify-center">
@@ -176,7 +170,6 @@ function SideModal({ showSideModal, setShowSideModal, user, currentUrl }) {
           >
             Lists
           </Link>
-          <SignOutButton />
         </div>
       </div>
     </div>

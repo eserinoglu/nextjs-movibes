@@ -1,7 +1,6 @@
 import React from "react";
 import MoviesSlider from "@/components/MoviesSlider";
 import NowPlaying from "@/components/NowPlaying";
-import SpecialBox from "@/components/SpecialBox";
 
 export const metadata = {
   title: "Movibes",
@@ -12,9 +11,8 @@ export const metadata = {
 export default async function Home() {
   return (
     <div className="w-full md:w-5/6 md:ml-auto mb-5 md:mb-10">
-      <SpecialBox />
-      <div className="flex flex-col w-full gap-4 px-3 md:px-10">
-        <h4 className="text-xl font-semibold opacity-60">Now Playing</h4>
+      <div className="flex flex-col w-full gap-4 md:px-10 px-3">
+        <h4 className="text-lg font-semibold opacity-60">Now Playing</h4>
         <NowPlaying />
       </div>
       <div className="w-full flex flex-col gap-4 mt-8">

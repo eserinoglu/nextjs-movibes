@@ -4,18 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { MovieContext } from "@/context/MovieContext";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext";
 
 export default function Lists() {
   const router = useRouter();
-  const { favorites, watchlist, isLoading } = useContext(MovieContext);
-
-  if (isLoading) {
-    return (
-      <div className="w-full md:w-5/6 ml-auto h-[70vh] flex justify-center items-center">
-        <div className="w-14 h-14 rounded-full border-2 border-[#3dd2cc] border-dashed animate-spin"></div>
-      </div>
-    );
+  const { user } = useUser();
+  if (!user) {
+    router.push("/sign-in?redirect=/lists");
   }
+  const { favorites, watchlist } = useContext(MovieContext);
   return (
     <div className="w-full md:w-5/6 md:ml-auto px-3 md:px-10 flex flex-col">
       <div className="flex flex-col gap-2 mb-5 w-full p-6 rounded-xl bg-[#212121]">
@@ -27,9 +24,8 @@ export default function Lists() {
           lists you have created.
         </p>
       </div>
-
       <div className="w-full flex flex-col md:grid md:grid-cols-2 gap-5">
-        {favorites.length > 0 ? (
+        {favorites && favorites.length > 0 ? (
           <Link href="/lists/favorites">
             <div className="w-full rounded-xl bg-[#212121] p-5 flex flex-col gap-4 md:border-[1px] md:border-transparent md:hover:border-[#ffffff2d] md:duration-100 relative overflow-hidden md:hover:shadow-2xl">
               <div className="absolute cursor-pointer rounded-xl w-full h-full right-0 top-0 blur-2xl opacity-40 overflow-hidden">
@@ -71,7 +67,7 @@ export default function Lists() {
             </p>
           </div>
         )}
-        {watchlist.length > 0 ? (
+        {watchlist && watchlist.length > 0 ? (
           <Link href="/lists/watchlist">
             <div className="w-full rounded-xl bg-[#212121] p-5 flex flex-col gap-4 md:border-[1px] md:border-transparent md:hover:border-[#ffffff2d] md:duration-100 relative overflow-hidden md:hover:shadow-2xl">
               <div

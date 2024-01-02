@@ -3,37 +3,33 @@ import React, { useState } from "react";
 import { AiOutlineGoogle } from "react-icons/ai";
 import logo2 from "../../public/logo2.png";
 import Image from "next/image";
-import { useSignIn } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { supabase } from "@/supabase/supabase";
 
 export default function SignInPage() {
-  const { signIn, setActive } = useSignIn();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e) => {
+  const signIn = async (e) => {
     e.preventDefault();
-    try {
-      const result = await signIn.create({
-        identifier: email,
-        password: password,
-      });
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        const redirectedUrl = searchParams.get("redirect_url") || "/";
-        router.push(redirectedUrl);
-      }
-    } catch (error) {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
       alert(error.message);
+    } else {
+      const redirect = searchParams.get("redirect");
+      router.push(redirect || "/");
     }
   };
   return (
     <div className="w-screen h-[100dvh] p-5 flex justify-center items-center">
       <div className="p-5 rounded-3xl shadow-xl bg-[#212121] flex flex-col w-full md:w-2/6 md:p-10 gap-5 z-10">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+        <form onSubmit={signIn} className="flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <Link href={"/"}>
               <Image
