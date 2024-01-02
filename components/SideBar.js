@@ -2,14 +2,13 @@
 import React from "react";
 import logo2 from "../public/logo2.png";
 import Image from "next/image";
-import { BiHome, BiMoviePlay, BiTrendingUp } from "react-icons/bi";
+import { BiHome, BiMoviePlay } from "react-icons/bi";
 import { HiQueueList } from "react-icons/hi2";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function SideBar() {
   const currentUrl = usePathname();
-
   return (
     <div
       className={`w-1/6 z-30 bg-[#212121] h-screen rounded-tr-2xl fixed top-0 left-0 rounded-br-2xl hidden py-4 shadow-lg ${
