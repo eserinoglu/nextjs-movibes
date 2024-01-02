@@ -5,10 +5,34 @@ import logo2 from "../../public/logo2.png";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { supabase } from "@/supabase/supabase";
 
 export default function SignUpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const signUp = async (e) => {
+    e.preventDefault();
+    try {
+      const { data: newUser, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) throw error;
+      await supabase
+        .from("users")
+        .update([
+          {
+            display_name: `${firstName} ${lastName}`,
+            email: newUser.user.email,
+          },
+        ])
+        .eq("id", newUser.user.id);
+      router.push("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +41,7 @@ export default function SignUpPage() {
   return (
     <div className="w-screen h-screen flex justify-center items-center p-5">
       <div className="p-5 rounded-3xl shadow-xl bg-[#212121] flex flex-col w-full md:w-2/6 md:p-10 gap-5 z-10">
-        <form className="flex flex-col gap-8">
+        <form onSubmit={signUp} className="flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <Link href={"/"}>
               <Image

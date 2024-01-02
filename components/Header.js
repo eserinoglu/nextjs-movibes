@@ -10,7 +10,7 @@ import { useUser } from "@/context/UserContext";
 import { supabase } from "@/supabase/supabase";
 
 export default function Header() {
-  const { user } = useUser();
+  const { user, userData } = useUser();
   const router = useRouter();
   const currentUrl = usePathname();
   const [searchValue, setSearchValue] = useState("");
@@ -74,7 +74,13 @@ export default function Header() {
         </div>
         <div className="hidden md:flex md:col-span-1 items-center justify-end gap-7">
           {user ? (
-            <Link href={"/profile"}>Profile</Link>
+            <Link href={"/profile"}>
+              <div className="bg-[#3dd2cc] rounded-full w-11 h-11 items-center flex justify-center">
+                <h4 className="text-2xl font-semibold leading-none">
+                  {userData?.display_name.split("")[0]}
+                </h4>
+              </div>
+            </Link>
           ) : (
             <Link href={"/sign-in"}>Sign In</Link>
           )}
