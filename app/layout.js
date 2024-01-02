@@ -4,6 +4,7 @@ import SideBar from "@/components/SideBar";
 import Header from "@/components/Header";
 import MovieContextProvider from "@/context/MovieContext";
 import UserContextProvider from "@/context/UserContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
             <SideBar />
             <Header />
             {children}
+            <SpeedInsights />
           </body>
         </html>
       </MovieContextProvider>
