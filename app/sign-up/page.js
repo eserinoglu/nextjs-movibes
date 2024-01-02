@@ -3,13 +3,10 @@ import React, { useState } from "react";
 import { AiOutlineGoogle } from "react-icons/ai";
 import logo2 from "../../public/logo2.png";
 import Image from "next/image";
-import { useSignUp } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import axios from "axios";
 
 export default function SignUpPage() {
-  const { signUp, setActive } = useSignUp();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -17,45 +14,10 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const completeSignUp = await signUp.create({
-        firstName: firstName,
-        lastName: lastName,
-        emailAddress: email,
-        password: password,
-      });
-
-      const user = {
-        email: completeSignUp.emailAddress,
-        clerk_id: completeSignUp.createdUserId,
-      };
-
-      await fetch("/api/saveUser", {
-        method: "POST",
-        body: JSON.stringify(user),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).catch((err) => {
-        return console.log(err);
-      });
-
-      if (completeSignUp.status === "complete") {
-        await setActive({ session: completeSignUp.createdSessionId });
-        const redirectedUrl = searchParams.get("redirect_url") || "/";
-        router.push(redirectedUrl);
-      }
-    } catch (error) {
-      alert(error.message);
-    }
-  };
   return (
     <div className="w-screen h-screen flex justify-center items-center p-5">
       <div className="p-5 rounded-3xl shadow-xl bg-[#212121] flex flex-col w-full md:w-2/6 md:p-10 gap-5 z-10">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+        <form className="flex flex-col gap-8">
           <div className="flex flex-col gap-1">
             <Link href={"/"}>
               <Image
