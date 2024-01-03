@@ -11,8 +11,7 @@ import {
 import { LuListPlus } from "react-icons/lu";
 import { BiTimeFive, BiSolidStar } from "react-icons/bi";
 import { MovieContext } from "@/context/MovieContext";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import AddToListModal from "./AddToListModal";
 
 export default function MovieBanner({ data }) {
   const {
@@ -26,24 +25,18 @@ export default function MovieBanner({ data }) {
   const [isLiked, setIsLiked] = React.useState(false);
   const [isInWatchlist, setIsInWatchlist] = React.useState(false);
 
+  const [showModal, setShowModal] = React.useState(false);
+
   useEffect(() => {
     setIsLiked(favorites?.some((fav) => fav.movie_id === data.id));
     setIsInWatchlist(watchlist?.some((watch) => watch.movie_id === data.id));
   }, [favorites, watchlist]);
   return (
     <div className="w-full h-auto relative flex rounded-xl overflow-hidden items-center px-4 py-5 md:p-7 md:py-12 shadow-lg bg-black">
-      <ToastContainer
-        position="top-center"
-        autoClose={1600}
-        limit={5}
-        hideProgressBar={true}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
+      <AddToListModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        movie={data}
       />
       <Image
         fill
@@ -103,8 +96,8 @@ export default function MovieBanner({ data }) {
                 size={30}
               />
             )}
-
             <LuListPlus
+              onClick={() => setShowModal(true)}
               className="opacity-30 hover:opacity-100 cursor-pointer duration-100"
               color="white"
               size={30}

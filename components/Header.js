@@ -2,12 +2,15 @@
 import React, { useEffect, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { AiOutlineMenu } from "react-icons/ai";
+import { FaChevronDown } from "react-icons/fa";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import logo from "../public/logo2.png";
 import Image from "next/image";
 import { useUser } from "@/context/UserContext";
+import { useMovie } from "@/context/MovieContext";
 import { supabase } from "@/supabase/supabase";
+import CreateListModal from "./CreateListModal";
 
 export default function Header() {
   const { user, userData } = useUser();
@@ -91,6 +94,11 @@ export default function Header() {
 }
 
 function SideModal({ showSideModal, setShowSideModal, user, currentUrl }) {
+  const { userLists } = useMovie();
+  const { userData } = useUser();
+  const router = useRouter();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -102,6 +110,7 @@ function SideModal({ showSideModal, setShowSideModal, user, currentUrl }) {
   };
   return (
     <div className="z-40">
+      <CreateListModal showModal={showModal} setShowModal={setShowModal} />
       <div
         style={{
           opacity: showSideModal ? 1 : 0,
@@ -124,8 +133,11 @@ function SideModal({ showSideModal, setShowSideModal, user, currentUrl }) {
         </div>
         <div className="bg-[#212121] rounded-xl shadow-lg flex items-center gap-2 p-4 w-[90%] mx-auto">
           {user ? (
-            <div className="flex items-center gap-2 justify-center w-full">
-              <button onClick={signOut}>Sign Out</button>
+            <div
+              onClick={() => router.push("/profile")}
+              className="flex items-center gap-2 justify-center w-full cursor-pointer"
+            >
+              <span>{userData?.display_name}</span>
             </div>
           ) : (
             <div className="w-full flex justify-center">
@@ -135,7 +147,7 @@ function SideModal({ showSideModal, setShowSideModal, user, currentUrl }) {
             </div>
           )}
         </div>
-        <div className="flex flex-col w-[90%] mx-auto gap-2">
+        <div className="flex flex-col w-[90%] mx-auto gap-2 h-full">
           <Link
             style={{
               opacity: currentUrl === "/" ? 1 : 0.3,
@@ -158,24 +170,64 @@ function SideModal({ showSideModal, setShowSideModal, user, currentUrl }) {
           </Link>
           <Link
             style={{
-              opacity: currentUrl === "/profile" ? 1 : 0.3,
-              backgroundColor: currentUrl === "/profile" ? "#3dd2cc" : "",
+              opacity: currentUrl === "/favorites" ? 1 : 0.3,
+              backgroundColor: currentUrl === "/favorites" ? "#3dd2cc" : "",
             }}
             className="w-full p-4 flex justify-center rounded-xl font-semibold text-lg"
-            href={"/profile"}
+            href={"/favorites"}
           >
-            Profile
+            Favorites
           </Link>
           <Link
             style={{
-              opacity: currentUrl.includes("/lists") ? 1 : 0.3,
-              backgroundColor: currentUrl.includes("/lists") ? "#3dd2cc" : "",
+              opacity: currentUrl === "/watchlist" ? 1 : 0.3,
+              backgroundColor: currentUrl === "/watchlist" ? "#3dd2cc" : "",
             }}
             className="w-full p-4 flex justify-center rounded-xl font-semibold text-lg"
-            href={"/lists"}
+            href={"/watchlist"}
           >
-            Lists
+            Watchlist
           </Link>
+          {user && (
+            <div className="w-full px-3 py-2 bg-[#3dd2cc] rounded-xl">
+              <div
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex items-center justify-between"
+              >
+                <h5 className="font-medium text-lg">Lists</h5>
+                <FaChevronDown
+                  style={{
+                    transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                    transitionDuration: "0.3s",
+                  }}
+                />
+              </div>
+              {isExpanded && (
+                <div className="flex flex-col gap-2 mt-3">
+                  <div
+                    onClick={() => setShowModal(true)}
+                    className="p-2 bg-white rounded-lg cursor-pointer"
+                  >
+                    <span className="text-[#3dd2cc]">Create list</span>
+                  </div>
+                  {userLists?.map((list, index) => {
+                    return (
+                      <Link key={index} href={`/lists/${list.id}`}>
+                        <div className="flex bg-black/10 p-2 rounded-lg">
+                          <span>{list.name}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+          {user && (
+            <button className="mt-auto mb-5 text-red-600" onClick={signOut}>
+              Sign Out
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -27,6 +27,19 @@ const UserContextProvider = (props) => {
       console.log(error);
     }
   };
+  const updateUserData = async (displayName) => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .update({ display_name: displayName })
+        .eq("id", user?.id)
+        .select();
+      if (error) throw error;
+      setUserData(data[0]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -35,7 +48,7 @@ const UserContextProvider = (props) => {
   }, [user]);
 
   return (
-    <UserContext.Provider value={{ user, userData }}>
+    <UserContext.Provider value={{ user, userData, updateUserData }}>
       {props.children}
     </UserContext.Provider>
   );

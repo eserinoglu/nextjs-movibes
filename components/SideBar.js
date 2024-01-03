@@ -1,21 +1,28 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import logo2 from "../public/logo2.png";
 import Image from "next/image";
 import { BiCameraMovie } from "react-icons/bi";
 import { GoHome } from "react-icons/go";
-import { CgUserList } from "react-icons/cg";
-import { FaRegUserCircle } from "react-icons/fa";
-import { CiLogout } from "react-icons/ci";
+import {
+  IoHeartOutline,
+  IoEyeOutline,
+  IoChevronForward,
+} from "react-icons/io5";
+import { CiLogout, CiCirclePlus } from "react-icons/ci";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/supabase/supabase";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
+import { useMovie } from "@/context/MovieContext";
+import CreateListModal from "./CreateListModal";
 
 export default function SideBar() {
+  const { userLists } = useMovie();
   const { user } = useUser();
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -38,14 +45,14 @@ export default function SideBar() {
       path: "/movies",
     },
     {
-      name: "My Lists",
-      icon: <CgUserList size={18} />,
-      path: "/lists",
+      name: "Favorites",
+      icon: <IoHeartOutline size={18} />,
+      path: "/favorites",
     },
     {
-      name: "Profile",
-      icon: <FaRegUserCircle size={18} />,
-      path: "/profile",
+      name: "Watchlist",
+      icon: <IoEyeOutline size={18} />,
+      path: "/watchlist",
     },
   ];
   return (
@@ -54,6 +61,7 @@ export default function SideBar() {
         currentUrl === "/sign-in" || currentUrl === "/sign-up" ? "" : "md:block"
       }`}
     >
+      <CreateListModal showModal={showModal} setShowModal={setShowModal} />
       <div className="flex flex-col gap-3 h-full">
         <Image
           width={90}
@@ -92,12 +100,42 @@ export default function SideBar() {
             );
           })}
           {user && (
+            <div className="flex-col">
+              <h6 className="text-white/50 tracking-tight text-sm mt-4 font-semibold">
+                Your lists
+              </h6>
+              <li
+                onClick={() => setShowModal(true)}
+                className="bg-[#3dd2cc] hover:bg-opacity-80 duration-100 rounded-lg px-3 py-2 items-center justify-between flex my-2 cursor-pointer"
+              >
+                <span className="text-white text-sm font-semibold">
+                  Create new list
+                </span>
+                <CiCirclePlus size={18} className="text-white" />
+              </li>
+              <ul className="flex flex-col gap-2">
+                {userLists?.map((list, index) => {
+                  return (
+                    <Link href={`/lists/${list.id}`} key={index}>
+                      <li className="bg-white/5 hover:bg-white/10 duration-100 rounded-lg px-3 py-2 items-center justify-between flex">
+                        <span className="text-white/40 tracking-tight text-sm">
+                          • {list.name}
+                        </span>
+                        <IoChevronForward size={18} className="text-white/40" />
+                      </li>
+                    </Link>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          {user && (
             <button
               onClick={signOut}
-              className="p-3 w-full rounded-lg bg-red-600 flex items-center gap-2 mt-auto"
+              className="p-3 w-full rounded-lg border border-red-600 flex items-center gap-2 mt-auto"
             >
-              <CiLogout size={18} className="text-white" />
-              <span className="text-white text-sm font-medium">Sign Out</span>
+              <CiLogout size={18} className="text-red-600" />
+              <span className="text-red-600 text-sm font-medium">Sign Out</span>
             </button>
           )}
         </ul>

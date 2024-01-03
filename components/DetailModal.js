@@ -14,7 +14,7 @@ import CastView from "./CastView";
 import WatchProviders from "./WatchProviders";
 import CrewView from "./CrewView";
 import { MovieContext } from "@/context/MovieContext";
-import { ToastContainer } from "react-toastify";
+import AddToListModal from "./AddToListModal";
 
 export default function DetailModal({
   data,
@@ -22,21 +22,14 @@ export default function DetailModal({
   setSelectedMovie,
   setShowModal,
 }) {
+  const [showListModal, setShowListModal] = React.useState(false);
   if (!data) return null;
   return (
     <div className="flex flex-col rounded-tl-3xl rounded-tr-3xl">
-      <ToastContainer
-        position="top-center"
-        autoClose={1600}
-        limit={5}
-        hideProgressBar={true}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
+      <AddToListModal
+        showModal={showListModal}
+        setShowModal={setShowListModal}
+        movie={data}
       />
       <AiOutlineClose
         color="white"
@@ -51,6 +44,7 @@ export default function DetailModal({
         data={data}
         setSelectedMovie={setSelectedMovie}
         setShowModal={setShowModal}
+        setShowListModal={setShowListModal}
       />
       <div className="w-full px-3 md:px-10 flex flex-col mb-5">
         <div className="w-full flex flex-col gap-3 p-4 md:p-5 rounded-xl bg-[#ffffff0d] mt-5">
@@ -79,7 +73,7 @@ export default function DetailModal({
   );
 }
 
-function MovieBanner2({ data }) {
+function MovieBanner2({ data, setShowListModal }) {
   const {
     addFavorites,
     removeFavorites,
@@ -111,7 +105,6 @@ function MovieBanner2({ data }) {
             alt=""
           />
         </div>
-
         <div className="flex flex-col gap-6 z-10">
           <div className="flex flex-col gap-1">
             <h4 className="opacity-50">{data.release_date.split("-")[0]}</h4>
@@ -149,6 +142,7 @@ function MovieBanner2({ data }) {
               />
             )}
             <LuListPlus
+              onClick={() => setShowListModal(true)}
               className="opacity-30 hover:opacity-100 cursor-pointer duration-100"
               color="white"
               size={30}

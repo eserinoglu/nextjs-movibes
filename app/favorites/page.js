@@ -1,14 +1,20 @@
 "use client";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Image from "next/image";
 import { AiFillHeart, AiOutlineClose } from "react-icons/ai";
 import { MovieContext } from "@/context/MovieContext";
 import { ToastContainer } from "react-toastify";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext";
 
 export default function FavoritesList() {
+  const { user } = useUser();
+  const router = useRouter();
+  useEffect(() => {
+    if (!user) router.push("/sign-in");
+  }, [user]);
   const { favorites, removeFavorites } = useContext(MovieContext);
-
   if (favorites) {
     return (
       <div className="w-full md:w-5/6 md:ml-auto px-3 md:px-10 flex flex-col gap-4">

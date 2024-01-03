@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { useUser } from "@/context/UserContext";
 import Image from "next/image";
 import { AiFillEye, AiOutlineClose } from "react-icons/ai";
@@ -11,6 +11,9 @@ import Link from "next/link";
 export default function Watchlist() {
   const { user } = useUser();
   const router = useRouter();
+  useEffect(() => {
+    if (!user) router.push("/sign-in");
+  }, [user]);
   const { watchlist, removeWatchlist } = useContext(MovieContext);
 
   if (watchlist) {

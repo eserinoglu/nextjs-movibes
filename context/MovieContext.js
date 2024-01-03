@@ -11,7 +11,20 @@ const MovieContextProvider = (props) => {
   const { user } = useUser();
   const [favorites, setFavorites] = useState(null);
   const [watchlist, setWatchlist] = useState(null);
+  const [userLists, setUserLists] = useState(null);
 
+  const fetchUserLists = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_lists")
+        .select("*")
+        .eq("user_id", user.id);
+      if (error) throw error;
+      setUserLists(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const fetchFavorites = async () => {
     try {
       const { data, error } = await supabase
@@ -20,7 +33,6 @@ const MovieContextProvider = (props) => {
         .eq("user_id", user.id);
       if (error) throw error;
       setFavorites(data);
-      setIsLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -113,14 +125,79 @@ const MovieContextProvider = (props) => {
       console.log(error);
     }
   };
+  const removeFromList = async (movieId, listId) => {
+    if (!user) router.push(`/sign-in?redirect=/movies/${movieId}`);
+    try {
+      const { data, error } = await supabase
+        .from("list_movies")
+        .delete()
+        .eq("movie_id", movieId)
+        .eq("list_id", listId);
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const addToList = async (movieId, posterPath, listId) => {
+    if (!user) router.push(`/sign-in?redirect=/movies/${movieId}`);
+    try {
+      const { data, error } = await supabase
+        .from("list_movies")
+        .insert([
+          {
+            movie_id: movieId,
+            poster_path: posterPath,
+            list_id: listId,
+          },
+        ])
+        .select();
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const createList = async (name) => {
+    if (!user) router.push(`/sign-in`);
+    try {
+      const { data, error } = await supabase
+        .from("user_lists")
+        .insert([
+          {
+            name: name,
+            user_id: user.id,
+          },
+        ])
+        .select();
+      setUserLists((prev) => [...prev, data[0]]);
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const deleteList = async (listId) => {
+    if (!user) router.push(`/sign-in`);
+    try {
+      setUserLists((prev) => prev.filter((list) => list.id !== Number(listId)));
+      const { data, error } = await supabase
+        .from("user_lists")
+        .delete()
+        .eq("id", listId)
+        .eq("user_id", user.id);
+      if (error) throw error;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     if (user) {
       fetchFavorites();
       fetchWatchlist();
+      fetchUserLists();
     } else {
       setFavorites(null);
       setWatchlist(null);
+      setUserLists(null);
     }
   }, [user]);
 
@@ -129,10 +206,15 @@ const MovieContextProvider = (props) => {
       value={{
         favorites,
         watchlist,
+        userLists,
         addFavorites,
         removeFavorites,
         addWatchlist,
         removeWatchlist,
+        removeFromList,
+        addToList,
+        createList,
+        deleteList,
       }}
     >
       {props.children}
@@ -141,3 +223,5 @@ const MovieContextProvider = (props) => {
 };
 
 export default MovieContextProvider;
+
+export const useMovie = () => React.useContext(MovieContext);
