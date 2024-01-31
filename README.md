@@ -1,5 +1,7 @@
 # NextJS Movie Listing App - Movibes Web App
 
+Movibes is a platform that allows you to explore and track the movies. You can add movies to your favorites list or your watchlist. Also you can create your custom lists.
+
 ## Live Website : [Movibes](https://movibes-six.vercel.app)
 
 For Mobile App -> [Movibes Mobile App](https://github.com/eserinoglu/react-native-ios-movie-listing-app)
